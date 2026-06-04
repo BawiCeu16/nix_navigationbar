@@ -29,7 +29,7 @@ class _NixDemoAppState extends State<NixDemoApp> {
           brightness: Brightness.light,
         ),
         cardTheme: const CardThemeData(
-          elevation: 2,
+          elevation: 0,
           margin: EdgeInsets.symmetric(vertical: 8),
         ),
       ),
@@ -41,7 +41,7 @@ class _NixDemoAppState extends State<NixDemoApp> {
           brightness: Brightness.dark,
         ),
         cardTheme: const CardThemeData(
-          elevation: 4,
+          elevation: 0,
           margin: EdgeInsets.symmetric(vertical: 8),
         ),
       ),
@@ -255,9 +255,10 @@ class _DemoHomeScreenState extends State<DemoHomeScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               gradient: LinearGradient(
-                colors: widget.isDarkMode
-                    ? [const Color(0xFF2C1654), const Color(0xFF1E1035)]
-                    : [const Color(0xFFECE4FA), const Color(0xFFF1EAFF)],
+                colors: [
+                  theme.colorScheme.primaryContainer,
+                  theme.colorScheme.secondaryContainer,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -269,16 +270,16 @@ class _DemoHomeScreenState extends State<DemoHomeScreen> {
                   'Dynamic Pill Layout',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: widget.isDarkMode ? Colors.white : Colors.deepPurple,
+                    color: theme.colorScheme.onPrimaryContainer,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'This widget floats elegantly above your screen contents, providing a clean minimalist aesthetic. You can interact with it by tapping tabs or dragging the selection bubble directly!',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: widget.isDarkMode
-                        ? Colors.white70
-                        : Colors.black.withOpacity(0.8),
+                    color: theme.colorScheme.onPrimaryContainer.withOpacity(
+                      0.85,
+                    ),
                   ),
                 ),
               ],
@@ -472,13 +473,13 @@ class _DemoHomeScreenState extends State<DemoHomeScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Antigravity Designer',
+                'nix Designer',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                'antigravity@gemini.dev',
+                'nix.dev',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurface.withOpacity(0.6),
                 ),
@@ -515,15 +516,16 @@ class _DemoHomeScreenState extends State<DemoHomeScreen> {
   // --- HELPERS WIDGETS ---
 
   Widget _buildSectionHeader(String title) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, top: 12.0),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.1,
-          color: Colors.grey,
+          color: theme.colorScheme.outline,
         ),
       ),
     );
@@ -552,6 +554,7 @@ class _DemoHomeScreenState extends State<DemoHomeScreen> {
     String desc,
   ) {
     return Card(
+      elevation: 0,
       child: ListTile(
         leading: Icon(icon, color: theme.colorScheme.primary, size: 28),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -567,6 +570,7 @@ class _DemoHomeScreenState extends State<DemoHomeScreen> {
     IconData icon,
   ) {
     return Card(
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
