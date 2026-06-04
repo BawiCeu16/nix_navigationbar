@@ -157,7 +157,7 @@ class _DemoHomeScreenState extends State<DemoHomeScreen> {
     ];
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       body: Stack(
         children: [
           // Content Pages

@@ -3,11 +3,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nix_navigationbar/nix_navigationbar.dart';
 
 void main() {
-  testWidgets('NixNavigationBar renders items correctly', (WidgetTester tester) async {
+  testWidgets('NixNavigationBar renders items correctly', (
+    WidgetTester tester,
+  ) async {
     final items = [
       const NixNavigationBarItem(icon: Icon(Icons.home), label: Text('Home')),
-      const NixNavigationBarItem(icon: Icon(Icons.search), label: Text('Search')),
-      const NixNavigationBarItem(icon: Icon(Icons.person), label: Text('Profile')),
+      const NixNavigationBarItem(
+        icon: Icon(Icons.search),
+        label: Text('Search'),
+      ),
+      const NixNavigationBarItem(
+        icon: Icon(Icons.person),
+        label: Text('Profile'),
+      ),
     ];
 
     await tester.pumpWidget(
@@ -33,13 +41,21 @@ void main() {
     expect(find.byIcon(Icons.person), findsOneWidget);
   });
 
-  testWidgets('NixNavigationBar updates selection on tap', (WidgetTester tester) async {
+  testWidgets('NixNavigationBar updates selection on tap', (
+    WidgetTester tester,
+  ) async {
     int selectedIndex = 0;
 
     final items = [
       const NixNavigationBarItem(icon: Icon(Icons.home), label: Text('Home')),
-      const NixNavigationBarItem(icon: Icon(Icons.search), label: Text('Search')),
-      const NixNavigationBarItem(icon: Icon(Icons.person), label: Text('Profile')),
+      const NixNavigationBarItem(
+        icon: Icon(Icons.search),
+        label: Text('Search'),
+      ),
+      const NixNavigationBarItem(
+        icon: Icon(Icons.person),
+        label: Text('Profile'),
+      ),
     ];
 
     await tester.pumpWidget(
@@ -75,13 +91,21 @@ void main() {
     expect(selectedIndex, 2);
   });
 
-  testWidgets('NixNavigationBar supports horizontal dragging to change tabs', (WidgetTester tester) async {
+  testWidgets('NixNavigationBar supports horizontal dragging to change tabs', (
+    WidgetTester tester,
+  ) async {
     int selectedIndex = 0;
 
     final items = [
       const NixNavigationBarItem(icon: Icon(Icons.home), label: Text('Home')),
-      const NixNavigationBarItem(icon: Icon(Icons.search), label: Text('Search')),
-      const NixNavigationBarItem(icon: Icon(Icons.person), label: Text('Profile')),
+      const NixNavigationBarItem(
+        icon: Icon(Icons.search),
+        label: Text('Search'),
+      ),
+      const NixNavigationBarItem(
+        icon: Icon(Icons.person),
+        label: Text('Profile'),
+      ),
     ];
 
     await tester.pumpWidget(
