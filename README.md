@@ -90,11 +90,11 @@ Widget build(BuildContext context) {
 | `margin` | `EdgeInsetsGeometry` | `EdgeInsets.only(left: 40.0, right: 40.0, bottom: 30.0)` | Floating margin space around the navigation bar. |
 | `borderRadius` | `BorderRadiusGeometry?` | `BorderRadius.circular(360.0)` (100% pill) | Outer corner rounding of the navigation bar. |
 | `indicatorBorderRadius` | `BorderRadiusGeometry?` | `BorderRadius.circular(360.0)` (100% pill) | Corner rounding of the sliding bubble indicator. |
-| `enableBlur` | `bool` | `false` | Enable or disable the frosted glass background blur. |
+| `blur` | `bool` | `false` | Enable or disable the frosted glass background blur. |
 | `blurFactor` | `double` | `0.6` | Frosted glass blur intensity (0.0 to 1.0). |
 | `dimFactor` | `double` | `0.5` | Opacity of the background surface (0.0 to 1.0). |
-| `enableShadow` | `bool` | `false` | Cast a soft Material 3 shadow below the bar. |
-| `enableHapticFeedback` | `bool` | `true` | Trigger tactile feedback clicks on selection changes. |
+| `shadow` | `bool` | `false` | Cast a soft Material 3 shadow below the bar. |
+| `hapticFeedback` | `bool` | `true` | Trigger tactile feedback clicks on selection changes. |
 | `maxWidth` | `double?` | `600.0` | Limit horizontal expansion on large tablet/desktop screen layouts. |
 
 ---

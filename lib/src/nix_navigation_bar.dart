@@ -65,12 +65,12 @@ class NixNavigationBar extends StatefulWidget {
   final EdgeInsetsGeometry indicatorPadding;
 
   /// A list of shadows cast by the floating navigation bar.
-  /// If null and [enableShadow] is true, uses a default Material 3 soft shadow.
+  /// If null and [shadow] is true, uses a default Material 3 soft shadow.
   final List<BoxShadow>? shadows;
 
   /// Whether to display shadows under the navigation bar.
   /// Defaults to `false`.
-  final bool enableShadow;
+  final bool shadow;
 
   /// The animation duration for the indicator sliding transition.
   /// Defaults to `Duration(milliseconds: 300)`.
@@ -82,7 +82,7 @@ class NixNavigationBar extends StatefulWidget {
 
   /// Whether to trigger selection haptic feedback when the selection changes.
   /// Defaults to `true`.
-  final bool enableHapticFeedback;
+  final bool hapticFeedback;
 
   /// An optional border to paint around the outer navigation bar.
   /// Defaults to null (no border at all).
@@ -98,7 +98,7 @@ class NixNavigationBar extends StatefulWidget {
 
   /// Whether to enable frosted glass background blur.
   /// Defaults to `false`.
-  final bool enableBlur;
+  final bool blur;
 
   const NixNavigationBar({
     super.key,
@@ -120,12 +120,12 @@ class NixNavigationBar extends StatefulWidget {
     this.shadows,
     this.duration = const Duration(milliseconds: 300),
     this.curve = Curves.easeInOut,
-    this.enableHapticFeedback = true,
+    this.hapticFeedback = true,
     this.border,
     this.blurFactor = 0.6,
     this.dimFactor = 0.5,
-    this.enableBlur = false,
-    this.enableShadow = false,
+    this.blur = false,
+    this.shadow = false,
   });
 
   @override
@@ -168,7 +168,7 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
       widget.items.length - 1,
     );
     if (newIndex != widget.currentIndex) {
-      if (widget.enableHapticFeedback) {
+      if (widget.hapticFeedback) {
         HapticFeedback.selectionClick();
       }
       widget.onTap(newIndex);
@@ -195,7 +195,7 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
     );
 
     if (newIndex != widget.currentIndex) {
-      if (widget.enableHapticFeedback) {
+      if (widget.hapticFeedback) {
         HapticFeedback.selectionClick();
       }
       widget.onTap(newIndex);
@@ -213,7 +213,7 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
     );
 
     // Resolve styling tokens
-    final bool useBlur = widget.enableBlur;
+    final bool useBlur = widget.blur;
     final Color baseBgColor =
         widget.backgroundColor ??
         (theme.brightness == Brightness.dark ? Colors.black : Colors.white);
@@ -241,7 +241,7 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
     final BorderRadiusGeometry effectiveIndicatorRadius =
         widget.indicatorBorderRadius ?? BorderRadius.circular(40.0);
 
-    final List<BoxShadow>? effectiveShadows = widget.enableShadow
+    final List<BoxShadow>? effectiveShadows = widget.shadow
         ? (widget.shadows ??
               [
                 BoxShadow(
