@@ -21,7 +21,7 @@ Add `nix_navigationbar` to your `pubspec.yaml` dependencies:
 
 ```yaml
 dependencies:
-  nix_navigationbar: ^1.0.0
+  nix_navigationbar: ^2.0.0
 ```
 
 Import it in your Dart code:
@@ -32,49 +32,84 @@ import 'package:nix_navigationbar/nix_navigationbar.dart';
 
 ---
 
-## Usage
+## Important Navigation Management Recommendation
 
-Implement `NixNavigationBar` in the `bottomNavigationBar` slot or overlay it using a `Stack` at the bottom of your screen:
+> [!IMPORTANT]
+> **Recommended Screen Management**: We strongly advise using **List indexing** via `IndexedStack` (or `screens[_currentIndex]`) to switch between screens.
+>
+> ⚠️ **Warning regarding `PageView`**: While `PageView` can be used to handle swipe transitions, using `PageView` alongside floating navigation bars may lead to gesture conflicts, scroll synchronization glitches, frame rate drops, and unexpected state rebuilds. **Use `PageView` at your own risk.**
+
+---
+
+## Usage Example (Recommended Pattern)
+
+Implement `NixNavigationBar` using screen list indexing (`IndexedStack`):
 
 ```dart
-int _currentIndex = 0;
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: IndexedStack(
-      index: _currentIndex,
-      children: [
-        HomeScreen(),
-        SearchScreen(),
-        ProfileScreen(),
-      ],
-    ),
-    bottomNavigationBar: NixNavigationBar(
-      currentIndex: _currentIndex,
-      onTap: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
-      items: const [
-        NixNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home_filled),
-          label: Text('Home'),
-        ),
-        NixNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: Text('Search'),
-        ),
-        NixNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          activeIcon: Icon(Icons.person),
-          label: Text('Profile'),
-        ),
-      ],
-    ),
-  );
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
+
+  // List of navigation screens
+  final List<Widget> _screens = const [
+    Center(child: Text('Home Screen')),
+    Center(child: Text('Search Screen')),
+    Center(child: Text('Profile Screen')),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // IndexedStack preserves widget state across tab switches cleanly
+          Positioned.fill(
+            child: IndexedStack(
+              index: _currentIndex,
+              children: _screens,
+            ),
+          ),
+
+          // Floating Navigation Bar
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: NixNavigationBar(
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              items: const [
+                NixNavigationBarItem(
+                  icon: Icon(Icons.home_outlined),
+                  activeIcon: Icon(Icons.home_filled),
+                  label: Text('Home'),
+                ),
+                NixNavigationBarItem(
+                  icon: Icon(Icons.search),
+                  label: Text('Search'),
+                ),
+                NixNavigationBarItem(
+                  icon: Icon(Icons.person_outline),
+                  activeIcon: Icon(Icons.person),
+                  label: Text('Profile'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 ```
 

@@ -1,3 +1,9 @@
+## 2.0.0
+
+* **Major Architecture Update**: Switched example & recommended integration pattern to List / `IndexedStack` screen indexing instead of `PageView`.
+* Improved performance, stability, and smooth UI state preservation across tab switches.
+* Streamlined example app layout with interactive configuration customizer.
+
 ## 1.0.0
 
 * Initial release of `nix_navigationbar`.

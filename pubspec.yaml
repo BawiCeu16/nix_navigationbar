@@ -1,6 +1,6 @@
 name: nix_navigationbar
 description: A premium, highly customizable floating pill-style navigation bar widget with smooth sliding bubble animations, responsive width constraints, and selection haptic feedback.
-version: 1.0.0
+version: 2.0.0
 homepage: https://github.com/BawiCeu16/nix_navigationbar
 repository: https://github.com/BawiCeu16/nix_navigationbar
 issue_tracker: https://github.com/BawiCeu16/nix_navigationbar/issues
