@@ -2,6 +2,16 @@
 
 A premium, highly customizable, and beautiful floating pill-style navigation bar widget for Flutter. Designed to feel responsive, modern, and tactile out-of-the-box.
 
+![nix_navigationbar Preview](previews/image/nix_navigationbar_preview.png)
+
+---
+
+## Previews
+
+| Portrait Preview | Landscape Preview |
+|:---:|:---:|
+| ![Portrait Preview](previews/preview_gifs/portrait%20preview.gif) | ![Landscape Preview](previews/preview_gifs/landscape%20preview.gif) |
+
 ---
 
 ## Features

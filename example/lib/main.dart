@@ -25,7 +25,7 @@ class _NixDemoAppState extends State<NixDemoApp> {
         useMaterial3: true,
         brightness: Brightness.light,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: Colors.blue,
           brightness: Brightness.light,
         ),
       ),
@@ -33,7 +33,7 @@ class _NixDemoAppState extends State<NixDemoApp> {
         useMaterial3: true,
         brightness: Brightness.dark,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: Colors.blue,
           brightness: Brightness.dark,
         ),
       ),
