@@ -133,21 +133,25 @@ class NixNavigationBar extends StatefulWidget {
 }
 
 class _NixNavigationBarState extends State<NixNavigationBar> {
-  bool _isDragging = false;
-  double _dragX = 0.0;
+  final ValueNotifier<_DragState> _dragStateNotifier =
+      ValueNotifier<_DragState>(const _DragState(isDragging: false, dragX: 0.0));
+
+  @override
+  void dispose() {
+    _dragStateNotifier.dispose();
+    super.dispose();
+  }
 
   void _handleDragStart(
     DragStartDetails details,
     double contentWidth,
     EdgeInsets resolvedPadding,
   ) {
-    setState(() {
-      _isDragging = true;
-      _dragX = (details.localPosition.dx - resolvedPadding.left).clamp(
-        0.0,
-        contentWidth,
-      );
-    });
+    final double dragX = (details.localPosition.dx - resolvedPadding.left).clamp(
+      0.0,
+      contentWidth,
+    );
+    _dragStateNotifier.value = _DragState(isDragging: true, dragX: dragX);
   }
 
   void _handleDragUpdate(
@@ -155,15 +159,15 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
     double contentWidth,
     EdgeInsets resolvedPadding,
   ) {
+    if (widget.items.isEmpty) return;
     final double itemWidth = contentWidth / widget.items.length;
-    setState(() {
-      _dragX = (details.localPosition.dx - resolvedPadding.left).clamp(
-        0.0,
-        contentWidth,
-      );
-    });
+    final double dragX = (details.localPosition.dx - resolvedPadding.left).clamp(
+      0.0,
+      contentWidth,
+    );
+    _dragStateNotifier.value = _DragState(isDragging: true, dragX: dragX);
 
-    final int newIndex = (_dragX / itemWidth).floor().clamp(
+    final int newIndex = (dragX / itemWidth).floor().clamp(
       0,
       widget.items.length - 1,
     );
@@ -176,9 +180,17 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
   }
 
   void _handleDragEnd(DragEndDetails details) {
-    setState(() {
-      _isDragging = false;
-    });
+    _dragStateNotifier.value = _DragState(
+      isDragging: false,
+      dragX: _dragStateNotifier.value.dragX,
+    );
+  }
+
+  void _handleDragCancel() {
+    _dragStateNotifier.value = _DragState(
+      isDragging: false,
+      dragX: _dragStateNotifier.value.dragX,
+    );
   }
 
   void _handleTapDown(
@@ -186,6 +198,7 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
     double contentWidth,
     EdgeInsets resolvedPadding,
   ) {
+    if (widget.items.isEmpty) return;
     final double itemWidth = contentWidth / widget.items.length;
     final double localX = (details.localPosition.dx - resolvedPadding.left)
         .clamp(0.0, contentWidth);
@@ -288,60 +301,64 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
                         ? contentWidth / itemCount
                         : 0.0;
 
-                    double indicatorLeft = 0.0;
-                    double indicatorWidth = 0.0;
-
-                    if (itemCount > 0) {
-                      indicatorWidth =
-                          (itemWidth -
-                                  resolvedIndicatorPadding.left -
-                                  resolvedIndicatorPadding.right)
-                              .clamp(0.0, double.infinity);
-
-                      if (_isDragging) {
-                        // Slide position centered with finger
-                        indicatorLeft = _dragX - (indicatorWidth / 2);
-                      } else {
-                        indicatorLeft =
-                            (widget.currentIndex * itemWidth) +
-                            resolvedIndicatorPadding.left;
-                      }
-
-                      // Clamp selection boundary
-                      final double minLeft = resolvedIndicatorPadding.left;
-                      final double maxLeft =
-                          (contentWidth -
-                                  indicatorWidth -
-                                  resolvedIndicatorPadding.right)
-                              .clamp(minLeft, double.infinity);
-                      indicatorLeft =
-                          indicatorLeft.clamp(minLeft, maxLeft) +
-                          resolvedPadding.left;
-                    }
+                    final double indicatorWidth = itemCount > 0
+                        ? (itemWidth -
+                                resolvedIndicatorPadding.left -
+                                resolvedIndicatorPadding.right)
+                            .clamp(0.0, double.infinity)
+                        : 0.0;
 
                     return Stack(
                       children: [
-                        // Selection Indicator Bubble
+                        // Selection Indicator Bubble isolated to its own notifier
                         if (itemCount > 0)
-                          AnimatedPositioned(
-                            duration: _isDragging
-                                ? Duration.zero
-                                : widget.duration,
-                            curve: widget.curve,
-                            left: indicatorLeft,
-                            top: resolvedPadding.top,
-                            bottom: resolvedPadding.bottom,
-                            child: Padding(
-                              padding: widget.indicatorPadding,
-                              child: SizedBox(
-                                width: indicatorWidth,
-                                child: ClipRRect(
-                                  borderRadius: effectiveIndicatorRadius,
-                                  child: _buildIndicatorBackground(
-                                    useBlur: useBlur,
-                                    effectiveIndicatorColor:
-                                        effectiveIndicatorColor,
+                          ValueListenableBuilder<_DragState>(
+                            valueListenable: _dragStateNotifier,
+                            builder: (context, dragState, child) {
+                              double indicatorLeft;
+                              if (dragState.isDragging) {
+                                indicatorLeft =
+                                    dragState.dragX - (indicatorWidth / 2);
+                              } else {
+                                indicatorLeft =
+                                    (widget.currentIndex * itemWidth) +
+                                    resolvedIndicatorPadding.left;
+                              }
+
+                              final double minLeft =
+                                  resolvedIndicatorPadding.left;
+                              final double maxLeft =
+                                  (contentWidth -
+                                          indicatorWidth -
+                                          resolvedIndicatorPadding.right)
+                                      .clamp(minLeft, double.infinity);
+                              indicatorLeft =
+                                  indicatorLeft.clamp(minLeft, maxLeft) +
+                                  resolvedPadding.left;
+
+                              return AnimatedPositioned(
+                                duration: dragState.isDragging
+                                    ? Duration.zero
+                                    : widget.duration,
+                                curve: widget.curve,
+                                left: indicatorLeft,
+                                top: resolvedPadding.top,
+                                bottom: resolvedPadding.bottom,
+                                child: child!,
+                              );
+                            },
+                            child: RepaintBoundary(
+                              child: Padding(
+                                padding: widget.indicatorPadding,
+                                child: SizedBox(
+                                  width: indicatorWidth,
+                                  child: ClipRRect(
                                     borderRadius: effectiveIndicatorRadius,
+                                    child: _buildIndicatorBackground(
+                                      effectiveIndicatorColor:
+                                          effectiveIndicatorColor,
+                                      borderRadius: effectiveIndicatorRadius,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -368,92 +385,33 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
                                 resolvedPadding,
                               ),
                           onHorizontalDragEnd: _handleDragEnd,
-                          onHorizontalDragCancel: () =>
-                              setState(() => _isDragging = false),
-                          child: Padding(
-                            padding: widget.padding,
-                            child: Row(
-                              children: List.generate(itemCount, (index) {
-                                final item = widget.items[index];
-                                final isSelected = index == widget.currentIndex;
+                          onHorizontalDragCancel: _handleDragCancel,
+                          child: RepaintBoundary(
+                            child: Padding(
+                              padding: widget.padding,
+                              child: Row(
+                                children: List.generate(itemCount, (index) {
+                                  final item = widget.items[index];
+                                  final isSelected =
+                                      index == widget.currentIndex;
 
-                                final Color itemColor = isSelected
-                                    ? (item.selectedColor ??
-                                          effectiveSelectedColor)
-                                    : (item.unselectedColor ??
-                                          effectiveUnselectedColor);
+                                  final Color itemColor = isSelected
+                                      ? (item.selectedColor ??
+                                            effectiveSelectedColor)
+                                      : (item.unselectedColor ??
+                                            effectiveUnselectedColor);
 
-                                final Widget iconWidget =
-                                    item.activeIcon != null && isSelected
-                                    ? item.activeIcon!
-                                    : item.icon;
-
-                                return Expanded(
-                                  child: Semantics(
-                                    label:
-                                        item.tooltip ??
-                                        (item.label is Text
-                                            ? (item.label as Text).data
-                                            : null),
-                                    selected: isSelected,
-                                    container: true,
-                                    child: Tooltip(
-                                      message: item.tooltip ?? '',
-                                      child: TweenAnimationBuilder<Color?>(
-                                        tween: ColorTween(end: itemColor),
-                                        duration: widget.duration,
-                                        curve: widget.curve,
-                                        builder:
-                                            (context, animatedColor, child) {
-                                              return AnimatedScale(
-                                                scale: isSelected ? 1.08 : 1.0,
-                                                duration: widget.duration,
-                                                curve: widget.curve,
-                                                child: Center(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      IconTheme.merge(
-                                                        data: IconThemeData(
-                                                          color: animatedColor,
-                                                          size: 24.0,
-                                                        ),
-                                                        child: iconWidget,
-                                                      ),
-                                                      if (item.label !=
-                                                          null) ...[
-                                                        const SizedBox(
-                                                          height: 2.0,
-                                                        ),
-                                                        DefaultTextStyle.merge(
-                                                          style: TextStyle(
-                                                            color:
-                                                                animatedColor,
-                                                            fontSize: 11.0,
-                                                            fontWeight:
-                                                                isSelected
-                                                                ? FontWeight
-                                                                      .w600
-                                                                : FontWeight
-                                                                      .normal,
-                                                          ),
-                                                          child: item.label!,
-                                                        ),
-                                                      ],
-                                                    ],
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                      ),
+                                  return Expanded(
+                                    child: _NixNavigationItemWidget(
+                                      item: item,
+                                      isSelected: isSelected,
+                                      itemColor: itemColor,
+                                      duration: widget.duration,
+                                      curve: widget.curve,
                                     ),
-                                  ),
-                                );
-                              }),
+                                  );
+                                }),
+                              ),
                             ),
                           ),
                         ),
@@ -475,12 +433,14 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
     required Widget child,
   }) {
     if (useBlur) {
-      return BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: widget.blurFactor * 30.0,
-          sigmaY: widget.blurFactor * 30.0,
+      return RepaintBoundary(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: widget.blurFactor * 30.0,
+            sigmaY: widget.blurFactor * 30.0,
+          ),
+          child: Container(color: effectiveBgColor, child: child),
         ),
-        child: Container(color: effectiveBgColor, child: child),
       );
     } else {
       return Container(color: effectiveBgColor, child: child);
@@ -488,7 +448,6 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
   }
 
   Widget _buildIndicatorBackground({
-    required bool useBlur,
     required Color effectiveIndicatorColor,
     required BorderRadiusGeometry borderRadius,
   }) {
@@ -496,6 +455,85 @@ class _NixNavigationBarState extends State<NixNavigationBar> {
       decoration: BoxDecoration(
         color: effectiveIndicatorColor,
         borderRadius: borderRadius,
+      ),
+    );
+  }
+}
+
+class _DragState {
+  final bool isDragging;
+  final double dragX;
+
+  const _DragState({required this.isDragging, required this.dragX});
+}
+
+class _NixNavigationItemWidget extends StatelessWidget {
+  final NixNavigationBarItem item;
+  final bool isSelected;
+  final Color itemColor;
+  final Duration duration;
+  final Curve curve;
+
+  const _NixNavigationItemWidget({
+    required this.item,
+    required this.isSelected,
+    required this.itemColor,
+    required this.duration,
+    required this.curve,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget iconWidget =
+        item.activeIcon != null && isSelected ? item.activeIcon! : item.icon;
+
+    return Semantics(
+      label:
+          item.tooltip ??
+          (item.label is Text ? (item.label as Text).data : null),
+      selected: isSelected,
+      container: true,
+      child: Tooltip(
+        message: item.tooltip ?? '',
+        child: TweenAnimationBuilder<Color?>(
+          tween: ColorTween(end: itemColor),
+          duration: duration,
+          curve: curve,
+          builder: (context, animatedColor, child) {
+            return AnimatedScale(
+              scale: isSelected ? 1.08 : 1.0,
+              duration: duration,
+              curve: curve,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconTheme.merge(
+                      data: IconThemeData(
+                        color: animatedColor,
+                        size: 24.0,
+                      ),
+                      child: iconWidget,
+                    ),
+                    if (item.label != null) ...[
+                      const SizedBox(height: 2.0),
+                      DefaultTextStyle.merge(
+                        style: TextStyle(
+                          color: animatedColor,
+                          fontSize: 11.0,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.normal,
+                        ),
+                        child: item.label!,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

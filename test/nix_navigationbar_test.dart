@@ -135,4 +135,24 @@ void main() {
     // Index should be updated (Search or Profile)
     expect(selectedIndex, greaterThan(0));
   });
+
+  testWidgets('NixNavigationBar works with blur and empty items gracefully', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          bottomNavigationBar: NixNavigationBar(
+            items: const [],
+            currentIndex: 0,
+            blur: true,
+            shadow: true,
+            onTap: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(NixNavigationBar), findsOneWidget);
+  });
 }

@@ -7,6 +7,6 @@ void main() {
     await tester.pumpWidget(const NixDemoApp());
 
     // Verify that the title is displayed.
-    expect(find.text('Dynamic Pill Layout'), findsOneWidget);
+    expect(find.text('NixNavigationBar Example'), findsOneWidget);
   });
 }

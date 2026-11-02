@@ -6,7 +6,7 @@ repository: https://github.com/BawiCeu16/nix_navigationbar
 issue_tracker: https://github.com/BawiCeu16/nix_navigationbar/issues
 
 environment:
-  sdk: ^3.12.1
+  sdk: ">=3.0.0 <4.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
